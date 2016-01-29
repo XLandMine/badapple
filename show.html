@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body {
+			background-color: #ccc;
+		}
+		.w{
+			width: 400px;
+			margin:  30px auto;
+		}
+		textarea {
+			width:400px;
+			display: block;
+			height: 450px;
+            outline-style: none;
+            resize: none;
+            overflow: hidden;
+            margin: 0 auto;
+		}
+		.control button{
+			margin-left: 50px;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="w">
+		<div class="control w">
+			<button id="btn_getTxt">获取</button>       
+			<button id="btn_start">开始</button>  
+			<button id="btn_stop">暂停</button>  
+		</div>	
+		<textarea readonly="readonly" id="txt"></textarea><br>
+	</div>      
+	<!-- <video src="a.mp4" controls="controls"></video> -->
+<script type="text/javascript">
+	var xhr = new XMLHttpRequest();
+	var txt = document.getElementById("txt");
+	var btn_getTxt = document.getElementById("btn_getTxt");
+	var btn_start = document.getElementById("btn_start");
+	var btn_stop = document.getElementById("btn_stop");
+	var arr = [];
+	var tm;
+	var i = 0;
+	btn_getTxt.onclick = function(){
+		xhr.open("get","download?num=1",false);
+		xhr.send(null);
+		if((xhr.status>=200&&xhr.status<300)||xhr.status == 304){
+			arr = xhr.responseText.split(",");
+			txt.value = "OK";
+		}else{
+			alert("err "+xhr.status);
+		}
+	}
+	function start(num){
+		i++;
+		if(num<arr.length){
+			txt.value = arr[num];
+			tm = setTimeout("start("+i+")",62);
+		}else{
+			alert("完");
+		}
+	}
+	btn_start.onclick = function(){
+		i = 0;
+		if (tm != undefined) {
+			clearTimeout(tm);
+		}
+		start(i);
+	}
+
+	btn_stop.onclick = function(){
+		if (this.innerHTML == "暂停") {
+			clearTimeout(tm);
+			this.innerHTML = "继续";
+		}else{
+			start(i);
+			this.innerHTML = "暂停";
+		}
+	}
+</script>
+</body>
+</html>
