@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;	
+		}
+		button {
+			padding: 3px 6px;
+		}
+		body {
+			background-color: #ccc;
+		}
+		.w{
+			width: 400px;
+			margin:  30px auto;
+		}
+		textarea {
+			width:400px;
+			display: block;
+			height: 450px;
+            outline-style: none;
+            resize: none;
+            overflow: hidden;
+            margin: 0 auto;
+		}
+		.control button{
+			margin-left: 50px;
+		}
+		.mtk {
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top:0;
+			background-color: rgba(0,0,0,0.5);
+		}
+		.mtk span {
+			color:white;
+			font:600 40px "simsun";
+			text-align: center;
+			position: absolute;
+			top:30%;
+			margin-left: -100px;
+			left: 50%;
+		}
+	</style>
+</head>
+<body>
+	<div id="mtk" class="mtk">
+		<span>资源加载中....</span>
+	</div>
+	<div class="w">
+		<div class="control w">
+			<button id="btn_start">开始</button>  
+			<button id="btn_stop">暂停</button>  
+		</div>	
+		<textarea readonly="readonly" id="txt"></textarea><br>
+	</div>      
+	<!-- <video src="a.mp4" controls="controls"></video> -->
+<script type="text/javascript">
+	var xhr = new XMLHttpRequest();
+	var txt = document.getElementById("txt");
+	var mkt = document.getElementById("mtk");
+	var btn_start = document.getElementById("btn_start");
+	var btn_stop = document.getElementById("btn_stop");
+	var arr = [];
+	var tm = null;
+	var i = 0;
+
+	//页面加载完就获取资源
+	window.onload = function(){
+		//通过ajax向后台获取播放的TXT内容
+		xhr.open("get","badappleTxt.txt",false);
+		xhr.send(null);
+		if((xhr.status>=200&&xhr.status<300)||xhr.status == 304){
+			//将获取到的内容通过“,”切割成字符串
+			arr = xhr.responseText.split(",");
+			mkt.children[0].innerHTML = "资源加载成功";
+			setTimeout(function(){mkt.style.display = "none";},1000);
+		}else{
+			alert("资源加载失败 "+xhr.status);
+		}
+
+	}
+	//开始播放字符串
+	function start(num){
+		i++;
+		if(num<arr.length){
+			txt.value = arr[num];
+			tm = setTimeout("start("+i+")",62);
+		}else{
+			alert("完");
+		}
+	}
+	
+	//开始按钮的单击事件
+	btn_start.onclick = function(){
+		i = 0;
+		if (tm != undefined) {
+			clearTimeout(tm);
+		}
+		start(i);
+	}
+
+	//暂停按钮的单击事件
+	btn_stop.onclick = function(){
+		if (this.innerHTML == "暂停") {
+			clearTimeout(tm);
+			this.innerHTML = "继续";
+		}else{
+			start(i);
+			this.innerHTML = "暂停";
+		}
+	}
+</script>
+</body>
+</html>
