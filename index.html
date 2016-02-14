@@ -59,7 +59,7 @@
 		</div>	
 		<textarea readonly="readonly" id="txt"></textarea><br>
 	</div>      
-	<!-- <video src="a.mp4" controls="controls"></video> -->
+	<!-- <video src="video/a.mp4" controls="controls"></video> -->
 <script type="text/javascript">
 	var xhr = new XMLHttpRequest();
 	var txt = document.getElementById("txt");
@@ -69,6 +69,10 @@
 	var arr = [];
 	var tm = null;
 	var i = 0;
+	var fps = null;
+	var current = +new Date;
+	var previous = +new Date;
+
 
 	//页面加载完就获取资源
 	window.onload = function(){
@@ -80,6 +84,9 @@
 			arr = xhr.responseText.split(",");
 			mkt.children[0].innerHTML = "资源加载成功";
 			setTimeout(function(){mkt.style.display = "none";},1000);
+			console.log(arr.length);
+			//播放时间为220秒 用时间/长度得出一帧播放的时间
+			fps = 220*1000/arr.length;
 		}else{
 			alert("资源加载失败 "+xhr.status);
 		}
@@ -88,9 +95,31 @@
 	//开始播放字符串
 	function start(num){
 		i++;
-		if(num<arr.length){
+		if(num<arr.length || num < 100){
+			current = new Date();
+
+			//定义一个dt来记录一帧实际播放时间
+			var dt = current - previous;
+			previous = current;
+
 			txt.value = arr[num];
-			tm = setTimeout("start("+i+")",62);
+			//fps为理想帧率  fps-dt得出与实际帧率的差值
+			var time = fps;
+			//如果dt比fps大说明需要加快下一帧的速度以达到平衡
+			//如果dt比fps小说明这次是上一次加快的，不需要处理
+			if(dt > fps){
+				/*
+					理想数据为dt == fps == 62
+					但是就算增加差值还是难以达到效果 
+					dt总是大于62  使得视频播放时间大于220秒导致不同步
+					测试所得dt 大约在62 - 65 之间
+					所以为了尽量使dt  == fps
+					所以对下一帧播放时间time再次-2
+				*/
+				time = fps + (fps - dt) - 2;
+			}
+			console.log("dt----"+dt);
+			tm = setTimeout("start("+i+")",time);
 		}else{
 			alert("完");
 		}
@@ -102,6 +131,8 @@
 		if (tm != undefined) {
 			clearTimeout(tm);
 		}
+		current = new Date();
+	    previous = new Date();
 		start(i);
 	}
 
