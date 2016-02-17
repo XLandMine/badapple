@@ -4,6 +4,4 @@
 
 index.js为程序入口，使用node index.js开启后台，将监听8888端口，在浏览器中输入127.0.0.1:8888可看到首页show.html
 
-先单击按钮“获取”来从后台获取badapple txt文件夹下所有txt文件内容，当textarea显示OK时表示文件获取完毕
-
-单击开始播放badapple
+单击启动播放badapple
