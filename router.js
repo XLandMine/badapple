@@ -9,7 +9,7 @@ function router(requrl,response){
 
 	var pathname = url.parse(requrl).pathname;
 	// var params = url.parse(requrl, true).query;
-	console.log("你要去的是不是这里："+pathname);
+	// console.log("你要去的是不是这里："+pathname);
 	if(pathname == "/"){
 		loadFile(response,cache,"./index.html");
 	}else {
