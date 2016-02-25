@@ -8,16 +8,46 @@ var cache = {};
 function router(requrl,response){
 
 	var pathname = url.parse(requrl).pathname;
-	// var params = url.parse(requrl, true).query;
+	var params = url.parse(requrl, true).query;
 	// console.log("你要去的是不是这里："+pathname);
-	if(pathname == "/"){
+	
+	pathname = "." + pathname;  //将绝对地址转化为相对地址
+	if(pathname == "./"){
 		loadFile(response,cache,"./index.html");
-	}else {
-		pathname = "." + pathname;  //将绝对地址转化为相对地址
+	}else if(pathname == "./badappleTxt.txt"){
+		reBadApple(response,pathname,params);
+	}
+	else {
 		loadFile(response,cache,pathname);
 	}
 	
 }
+
+function reBadApple(response,absPath,params){
+	//获得url参数列表的num值
+	var num = params.num;
+	//判断资源是否存在cache中
+	if(cache[absPath+num]){
+		//存在则直接发送
+		sendFile(response,absPath,cache[absPath+num]);
+	}else{
+		//不存在则读取资源文件
+		fs.readFile(absPath,function(err,data){
+			if(err){
+				sen404(response);
+			}else{
+				data = data.toString();
+				for(var i = 0; i < 10; i++){
+					//将数据拆分成10次保存在cache中
+					cache[absPath+i] = data.substring(i/10*data.length,(i+1)/10*data.length);
+				}
+				sendFile(response,absPath,cache[absPath+num]);
+			}
+		})
+	}
+	
+}
+
 
 //发送404
 function sen404(response){ 

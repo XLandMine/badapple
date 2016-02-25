@@ -82,21 +82,45 @@
 	//页面加载完就获取资源
 	$(function(){
 		var xhr = new XMLHttpRequest();
-		mtk.children()[0].innerHTML += "<br>申请资源成功<br>资源加载中....";
-		xhr.open("get","badappleTxt.txt",false);
-		xhr.send(null);
-		if((xhr.status>=200&&xhr.status<300)||xhr.status == 304){
-			//将获取到的内容通过“,”切割成字符串
-			arr = xhr.responseText.split(",");
-			mtk.children()[0].innerHTML += "<br>资源加载成功<br>允许播放";
+		var baTxtStr = null;
+		xhr.i = 0;//绑定index标识
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState == 4){
+				if((xhr.status>=200&&xhr.status<300)||xhr.status == 304){
+					
+					//将获取到的内容保存在变量baTxtStr中
+					baTxtStr += xhr.responseText;
+					mtk.children()[0].innerHTML += "<br>资源加载完成"+xhr.i+"0%";
+					
+					if(xhr.i == 10){
+						mtk.children()[0].innerHTML += "<br>资源全部加载成功<br>允许播放";
+						//显示开始按钮
+						mtk.children("button").animate({"opacity":"1"},1000);
+						//将获取到的内容通过“,”切割成字符串
+						arr = baTxtStr.split(",");
+						//播放时间为220秒 用时间/长度得出一帧播放的时间
+						fps = 220*1000/arr.length;
 
-			mtk.children("button").animate({"opacity":"1"},1000);
+						//释放内存
+						baTxtStr = null;
+						return;
+					}
 
-			//播放时间为220秒 用时间/长度得出一帧播放的时间
-			fps = 220*1000/arr.length;
-		}else{
-			mtk.children()[0].innerHTML += "<br>资源加载失败,失败码为:"+xhr.status;
+					xhr.open("get","badappleTxt.txt?num="+xhr.i,true);
+					xhr.i++;
+					xhr.send(null);
+				}else{
+					mtk.children()[0].innerHTML += "<br>资源加载失败,失败码为:"+xhr.status;
+				}
+			}
 		}
+		mtk.children()[0].innerHTML += "<br>申请资源成功<br>资源加载中....";
+		//发送url到后台获取数据，由于数据量大，所以进行分10段去获取
+		//通过num标识要获取第几段数据
+		xhr.open("get","badappleTxt.txt?num="+xhr.i,true);
+		xhr.i++;
+		xhr.send(null);
+		
 
 		$("#btn").click(function(){
 			var clientHeight = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight|| 2000;
