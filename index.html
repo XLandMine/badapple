@@ -59,6 +59,7 @@
 			color:#999;
 		}
 	</style>
+	<script src="jquery-1.11.1.min.js"></script>
 </head>
 <body>
 	<div id="mtk" class="mtk">
@@ -68,63 +69,60 @@
 	<div class="w">
 		<textarea readonly="readonly" id="txt"></textarea><br>
 	</div>      
-	<video src="video/a.mp4" controls="controls" autoplay="autoplay"></video>
-<script type="text/javascript">
-	var xhr = new XMLHttpRequest();
-	var txt = document.getElementById("txt");
-	var mtk = document.getElementById("mtk");
-	var btn_start = document.getElementById("btn_start");
-	var btn_stop = document.getElementById("btn_stop");
+	<!-- <video src="video/a.mp4" controls="controls" autoplay="autoplay"></video> -->
+<script>
 	var arr = [];
 	var tm = null;
 	var i = 0;        //将要播放的帧数
 	var fps = null;   //一帧的播放速度
-	var current = +new Date;
-	var previous = +new Date;
-	
+	var current = null;
+	var previous = null;
+	var mtk = $("#mtk");
 
 	//页面加载完就获取资源
-	window.onload = function(){
-		//通过ajax向后台获取播放的TXT内容
-		var btn = document.getElementById("btn");
-		btn.onclick = function(){
-			var clientHeight = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight|| 2000;
-			animate(mtk,{"top":-clientHeight});
-			i = 0;
-			current = new Date();
-		    previous = new Date();
-			start(i);
-		}
-		mtk.children[0].innerHTML += "<br>申请资源成功<br>资源加载中....";
+	$(function(){
+		var xhr = new XMLHttpRequest();
+		mtk.children()[0].innerHTML += "<br>申请资源成功<br>资源加载中....";
 		xhr.open("get","badappleTxt.txt",false);
 		xhr.send(null);
 		if((xhr.status>=200&&xhr.status<300)||xhr.status == 304){
 			//将获取到的内容通过“,”切割成字符串
 			arr = xhr.responseText.split(",");
-			mtk.children[0].innerHTML += "<br>资源加载成功<br>允许播放";
-			
-			animate(btn,{"opacity":1});
+			mtk.children()[0].innerHTML += "<br>资源加载成功<br>允许播放";
 
-			// setTimeout(function(){mkt.style.display = "none";},1000);
-			// console.log(arr.length);
+			mtk.children("button").animate({"opacity":"1"},1000);
+
 			//播放时间为220秒 用时间/长度得出一帧播放的时间
 			fps = 220*1000/arr.length;
 		}else{
-			alert();
-			mtk.children[0].innerHTML += "<br>资源加载失败,失败码为:"+xhr.status;
+			mtk.children()[0].innerHTML += "<br>资源加载失败,失败码为:"+xhr.status;
 		}
-	}
+
+		$("#btn").click(function(){
+			var clientHeight = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight|| 2000;
+			mtk.animate({
+				"top":-clientHeight
+			})
+			//初始化参数
+			i = 0;
+			current = new Date();
+		    previous = new Date();
+			start();
+		});
+
+	});
+
 	//开始播放字符串
-	function start(num){
-		i++;
-		if(num<arr.length){
+	function start(){
+		if(i <= arr.length){
 			current = new Date();
 
 			//定义一个dt来记录一帧实际播放时间
 			var dt = current - previous;
 			previous = current;
 
-			txt.value = arr[num];
+			$("#txt").val(arr[i]);
+
 			//fps为理想帧率  fps-dt得出与实际帧率的差值
 			var time = fps;
 			//如果dt比fps大说明需要加快下一帧的速度以达到平衡
@@ -140,58 +138,18 @@
 				*/
 				time = fps + (fps - dt) - 2;
 			}
-			
 			// console.log("dt----"+dt);
-			tm = setTimeout("start("+i+")",time);
+			tm = setTimeout("start()",time);
 		}else{
-			mtk.children[0].innerHTML += "<br>播放完成";
-			animate(mtk,{"top":0});
+			setTimeout(function(){
+				mtk.children()[0].innerHTML += "<br>播放完成";
+				mtk.animate({"top":0});
+			},1000)
 		}
+
+		i++;
+
 	}
-	
-	//动画
-	function animate(obj, json, fn) {
-    clearInterval(obj.timer);
-    obj.timer = setInterval(function () {
-        var flag = true;
-        for (var k in json) {
-            if (k == "opacity") {
-                var leader = getStyle(obj, k) * 100;
-                var target = json[k] * 100;
-                var step = (target - leader) / 10;
-                step = step > 0 ? Math.ceil(step) : Math.floor(step);
-                obj.style[k] = (leader + step) / 100;
-            } else if (k == "zIndex") {
-                obj.style[k] = json[k];
-            } else {
-                var leader = parseInt(getStyle(obj, k)) || 0;
-                var target = json[k];
-                var step = (target - leader) / 10;
-                step = step > 0 ? Math.ceil(step) : Math.floor(step);
-                obj.style[k] = leader + step + "px";
-            }
-            if (leader != target) {
-                flag = false;
-            }
-        }
-        if (flag) {
-            clearInterval(obj.timer);
-            if (fn) {
-                fn();
-            }
-        }
-    }, 15)
-}
-
-function getStyle(obj, attr) {
-    if (obj.currentStyle) {
-        return obj.currentStyle[attr];
-    } else {
-        return window.getComputedStyle(obj, null)[attr];
-    }
-}
-
-
 </script>
 </body>
 </html>
