@@ -26,6 +26,7 @@ function router(requrl,response){
 function reBadApple(response,absPath,params){
 	//获得url参数列表的num值
 	var num = params.num;
+
 	//判断资源是否存在cache中
 	if(cache[absPath+num]){
 		//存在则直接发送
