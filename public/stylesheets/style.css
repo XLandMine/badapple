@@ -48,6 +48,7 @@ textarea {
 	font-size: 30px;
 	line-height: 100px;
 	text-align: center;
+	display: hidden;
 	opacity: 0;
 	cursor: pointer;
 	border-radius: 20%;

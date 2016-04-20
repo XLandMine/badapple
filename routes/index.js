@@ -19,7 +19,7 @@ function badapple(req,res){
 		//不存在则读取资源文件
 		fs.readFile("public/badappleTxt.txt",function(err,data){
 			if(err){
-
+				
 			}else{
 				data = data.toString();
 				for(var i = 0; i < 10; i++){
