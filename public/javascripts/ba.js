@@ -105,8 +105,6 @@ $(function(){
 		$("#mtk").animate({
 			"top":-clientHeight
 		})
-		//初始化参数
-		i = 0;
 	    //播放字符动画
 		ba.start();
 		//显示播放器并播放mp4文件
